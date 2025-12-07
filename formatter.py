@@ -2,8 +2,13 @@ def build_text(anime):
     title = anime.get("title", "Unknown Anime")
     synopsis = anime.get("description", "Synopsis not available.")
 
-    # Clean & limit synopsis to 7 lines
-    lines = synopsis.replace("<br>", "\n").splitlines()
+    # Clean AniList HTML breaks
+    synopsis = synopsis.replace("<br>", "\n") \
+                       .replace("<br/>", "\n") \
+                       .replace("<br />", "\n")
+
+    # Remove empty lines & take first 7 lines only
+    lines = [line.strip() for line in synopsis.split("\n") if line.strip()]
     synopsis_7 = "\n".join(lines[:7])
 
     text = f"""
@@ -18,5 +23,5 @@ def build_text(anime):
 💠 <b>Powered By</b> : @OtakusFlix
 """.strip()
 
-    # 🔒 Force RAW TEXT (disable Telegram formatting)
+    # Force RAW text (no Telegram formatting)
     return text.replace("<", "&lt;").replace(">", "&gt;")
