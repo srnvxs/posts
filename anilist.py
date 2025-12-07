@@ -16,12 +16,7 @@ def get_anime(query: str):
             print(r.text)
             return None
 
-        try:
-            data = r.json()
-        except Exception:
-            print("❌ Not JSON Response:")
-            print(r.text)
-            return None
+        data = r.json()
 
         if data.get("success") and data.get("anime"):
             return data["anime"]
