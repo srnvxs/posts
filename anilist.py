@@ -1,14 +1,35 @@
 import requests
 
-API_URL = "https://anilist.vercel.app/api/graphql"
+API_URL = "https://graphql.anilist.co"
 
-def get_anime(query: str):
+def get_anime(name: str):
+    query = """
+    query ($search: String) {
+      Media(search: $search, type: ANIME) {
+        title {
+          romaji
+        }
+        description
+      }
+    }
+    """
+
+    variables = {
+        "search": name
+    }
+
     try:
-        r = requests.get(
+        r = requests.post(
             API_URL,
-            params={"query": query},
-            timeout=15,
-            headers={"User-Agent": "Mozilla/5.0"}
+            json={
+                "query": query,
+                "variables": variables
+            },
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Content-Type": "application/json"
+            },
+            timeout=15
         )
 
         if r.status_code != 200:
@@ -18,10 +39,14 @@ def get_anime(query: str):
 
         data = r.json()
 
-        if data.get("success") and data.get("anime"):
-            return data["anime"]
+        media = data.get("data", {}).get("Media")
+        if not media:
+            return None
 
-        return None
+        return {
+            "title": media["title"]["romaji"],
+            "description": media["description"] or "Synopsis not available."
+        }
 
     except Exception as e:
         print("Request Failed:", e)
