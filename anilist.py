@@ -1,6 +1,6 @@
 import requests
 
-API_URL = "https://animmes2uapi.vercel.app/anilist"
+API_URL = "https://anilist.vercel.app/api/graphql"
 
 def get_anime(query: str):
     try:
