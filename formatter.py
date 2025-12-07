@@ -1,18 +1,30 @@
+import re
+
 def build_text(anime):
     title = anime.get("title", "Unknown Anime")
     synopsis = anime.get("description", "Synopsis not available.")
 
-    # Clean AniList HTML breaks
-    synopsis = synopsis.replace("<br>", "\n") \
-                       .replace("<br/>", "\n") \
-                       .replace("<br />", "\n")
+    # Remove HTML tags from AniList text
+    synopsis = re.sub(r"<.*?>", "", synopsis)
 
-    # Remove empty lines & take first 7 lines only
-    lines = [line.strip() for line in synopsis.split("\n") if line.strip()]
-    synopsis_7 = "\n".join(lines[:7])
+    # Stop before special episodes section
+    stop_phrases = [
+        "This includes",
+        "Special Episode",
+        "Following special",
+        "Includes following"
+    ]
+
+    for phrase in stop_phrases:
+        if phrase in synopsis:
+            synopsis = synopsis.split(phrase)[0]
+
+    # Split into sentences and take first 7
+    sentences = re.split(r'(?<=[.!?]) +', synopsis.strip())
+    synopsis_7 = " ".join(sentences[:7])
 
     text = f"""
-<b>{title}</b>
+<b>{title.upper()}</b>
 ────────────────────────
 <b>➤ Season :</b> <code>1</code>
 <b>➢ Audio :</b> <code>Jap • Eng • Hin • Tel • Tam</code>
@@ -23,5 +35,5 @@ def build_text(anime):
 💠 <b>Powered By</b> : @OtakusFlix
 """.strip()
 
-    # Force RAW text (no Telegram formatting)
+    # Show HTML tags as RAW TEXT
     return text.replace("<", "&lt;").replace(">", "&gt;")
