@@ -1,5 +1,6 @@
 import re
 
+# Fancy font map
 FONT_MAP = {
     "a":"ᴀ","b":"ʙ","c":"ᴄ","d":"ᴅ","e":"ᴇ","f":"ꜰ","g":"ɢ","h":"ʜ",
     "i":"ɪ","j":"ᴊ","k":"ᴋ","l":"ʟ","m":"ᴍ","n":"ɴ","o":"ᴏ","p":"ᴘ",
@@ -17,11 +18,19 @@ def build_text(anime):
     # Remove HTML tags
     synopsis = re.sub(r"<.*?>", "", synopsis)
 
-    # Take first 7 sentences
-    sentences = re.split(r'(?<=[.!?]) +', synopsis.strip())
-    synopsis_7 = " ".join(sentences[:7])
+    # Limit to 550-600 characters
+    synopsis = synopsis.strip()
+    if len(synopsis) > 600:
+        synopsis = synopsis[:600]
+        # Trim to last full word
+        if " " in synopsis:
+            synopsis = " ".join(synopsis.split(" ")[:-1])
+    elif len(synopsis) < 550:
+        # Optional: keep as is if less than 550
+        pass
 
-    synopsis_fancy = fancy(synopsis_7)
+    # Convert to fancy Unicode
+    synopsis_fancy = fancy(synopsis)
 
     text = f"""
 <b>{title}</b>
@@ -35,5 +44,5 @@ def build_text(anime):
 💠 <b>Powered By</b> : @OtakusFlix
 """.strip()
 
-    # Raw HTML text only
+    # Show raw HTML tags
     return text.replace("<", "&lt;").replace(">", "&gt;")
